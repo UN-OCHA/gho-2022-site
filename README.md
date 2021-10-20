@@ -38,7 +38,7 @@ The paragraphs that can be used inside an articles are:
 - `Sub-article`: A reference to another `article` node
 - `Text`: A text paragraph with optional footnotes
 
-In addition the system has a few **taxonmy terms**:
+In addition the system has a few **taxonomy terms**:
 
 - `Appeals`: Type of appeal like RRP, 3RP etc.
 - `Interactive content type`: Graph, Map etc.
@@ -165,6 +165,11 @@ The site is docker based. See https://github.com/UN-OCHA/gho-stack for instructi
 
 To build an image run `make`. This will create a `gho-site:local` image usable
 with the local setup described in the `gho-stack` repository.
+
+For local development, add this line to settings.local.php:
+`$config['config_split.config_split.config_dev']['status'] = TRUE;`
+After importing a fresh database, run `drush csim` to enable devel, database
+log and stage_file_proxy.
 
 Local testing
 -------------
