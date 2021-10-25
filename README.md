@@ -168,8 +168,8 @@ with the local setup described in the `gho-stack` repository.
 
 For local development, add this line to settings.local.php:
 `$config['config_split.config_split.config_dev']['status'] = TRUE;`
-After importing a fresh database, run `drush csim` to enable devel, database
-log and stage_file_proxy.
+After importing a fresh database, run `drush cim` to enable devel, database log
+and stage_file_proxy.
 
 Local testing
 -------------
