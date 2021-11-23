@@ -1,4 +1,6 @@
 global-styling:
+  js:
+    js/login_destination.js: {}
   css:
     theme:
       css/styles.css: {}
@@ -143,6 +145,8 @@ gho-interactive-content:
   css:
     theme:
       components/gho-interactive-content/gho-interactive-content.css: {}
+  js:
+    components/gho-interactive-content/gho-interactive-content.js: {}
 
 gho-page-404:
   css:
