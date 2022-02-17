@@ -6,7 +6,6 @@
  */
 
 use Drupal\common_design_subtheme\AddComponentClasses;
-use Drupal\Component\Utility\Html;
 use Drupal\Core\Menu\InaccessibleMenuLink;
 use Drupal\Core\Menu\MenuTreeParameters;
 use Drupal\Core\Template\Attribute;
@@ -71,13 +70,39 @@ function common_design_subtheme_preprocess_field(&$variables) {
     case 'text_trimmed':
     case 'text_default':
       foreach ($variables['items'] as $key => $item) {
-        $variables['items'][$key]['content']['#post_render'][] = [AddComponentClasses::class, 'add'];
+        $variables['items'][$key]['content']['#post_render'][] = [
+          AddComponentClasses::class, 'add',
+        ];
       }
       foreach (common_design_subtheme_get_components() as $component => $dummy) {
         $variables['#attached']['library'][] = $component;
       }
       break;
   }
+
+  // Add CD Button classes to field_link within download_button Paragraph type.
+  if ($variables['element']['#field_name'] == 'field_link' && $variables['element']['#object']->getType() === 'download_button') {
+    $variables['items'][0]['content']['#options']['attributes']['class'][] = 'cd-button cd-button--bold cd-button--uppercase';
+
+    // If no Link text was supplied, a URL will be in the title. In that case,
+    // we set a default value "Download report".
+    $has_url_in_title = strpos($variables['items'][0]['content']['#title'], 'http');
+    if ($has_url_in_title !== FALSE && $has_url_in_title >= 0) {
+      $variables['items'][0]['content']['#title'] = t('Download report');
+    }
+  }
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK().
+ */
+function common_design_subtheme_theme_suggestions_field(array $variables) {
+  $suggestions = [];
+  $element = $variables['element'];
+
+  $suggestions[] = 'field__' . $element['#entity_type'] . '__' . $element['#field_name'] . '__' . $element['#bundle'] . '__' . $element['#view_mode'];
+
+  return $suggestions;
 }
 
 /**
@@ -185,9 +210,9 @@ function common_design_subtheme_get_next_article(NodeInterface $node) {
     $plugin_id = reset($links)->getPluginId();
     $menu_tree = \Drupal::service('menu.link_tree');
 
-    // Load the 2 first levels of the main menu.
+    // Load all levels of the main menu.
     $parameters = new MenuTreeParameters();
-    $parameters->setMaxdepth(2);
+    $parameters->setMaxdepth(3);
     $tree = $menu_tree->load('main', $parameters);
 
     // Check the access to the nodes in the menu and ensure they are sorted.
@@ -195,9 +220,9 @@ function common_design_subtheme_get_next_article(NodeInterface $node) {
       ['callable' => 'menu.default_tree_manipulators:checkNodeAccess'],
       ['callable' => 'menu.default_tree_manipulators:checkAccess'],
       ['callable' => 'menu.default_tree_manipulators:generateIndexAndSort'],
-      // As we only required 2 levels, flattening will result in having all
-      // the level 2 links (so the articles) at the end of the array, in order
-      // so it's really easy to iterate to find the next one.
+      // Flattening will result in having all the "invisible" level 3 links
+      // (so the articles) at the end of the array, making it really easy to
+      // iterate to find the next one.
       ['callable' => 'menu.default_tree_manipulators:flatten'],
     ];
     $tree = $menu_tree->transform($tree, $manipulators);

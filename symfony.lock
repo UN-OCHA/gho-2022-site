@@ -26,7 +26,13 @@
     "composer/composer": {
         "version": "1.10.19"
     },
+    "composer/installers": {
+        "version": "v1.11.0"
+    },
     "composer/metadata-minifier": {
+        "version": "1.0.0"
+    },
+    "composer/pcre": {
         "version": "1.0.0"
     },
     "composer/semver": {
@@ -67,6 +73,9 @@
     },
     "container-interop/container-interop": {
         "version": "1.2.0"
+    },
+    "cweagans/composer-patches": {
+        "version": "1.7.1"
     },
     "dflydev/dot-access-configuration": {
         "version": "v1.0.3"
@@ -119,6 +128,9 @@
     "doctrine/reflection": {
         "version": "1.2.2"
     },
+    "drupal-composer/preserve-paths": {
+        "version": "0.1.6"
+    },
     "drupal/admin_denied": {
         "version": "1.0.0"
     },
@@ -158,8 +170,14 @@
     "drupal/core": {
         "version": "8.9.11"
     },
+    "drupal/core-composer-scaffold": {
+        "version": "9.2.10"
+    },
     "drupal/core-dev": {
         "version": "8.9.11"
+    },
+    "drupal/core-project-message": {
+        "version": "9.3.3"
     },
     "drupal/core-recommended": {
         "version": "8.9.11"
@@ -310,9 +328,6 @@
     },
     "laminas/laminas-stdlib": {
         "version": "3.2.1"
-    },
-    "laminas/laminas-zendframework-bridge": {
-        "version": "1.0.4"
     },
     "league/container": {
         "version": "2.4.1"
