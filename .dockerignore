@@ -1,6 +1,7 @@
 # Ignore everything except for the files necessary to build the codebase.
 *
 !config
+!config-dev
 !docker
 !html/modules/custom
 !html/themes/custom

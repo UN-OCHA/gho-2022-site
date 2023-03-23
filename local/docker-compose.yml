@@ -1,0 +1,90 @@
+version: "2.2"
+
+networks:
+  default:
+  proxy:
+    external:
+      name: ${PROXY:-proxy}
+
+volumes:
+  gho-local-site-database:
+  gho-local-site-public:
+  gho-local-site-private:
+
+services:
+  memcache:
+    image: public.ecr.aws/unocha/memcache:1.6
+    hostname: gho-local-memcache
+    container_name: gho-local-memcache
+    environment:
+      MEMCACHE_MAX_MEMORY: 64
+    ports:
+      - "11211"
+    networks:
+      - default
+
+  mysql:
+    image: public.ecr.aws/unocha/mysql:10.6
+    hostname: gho-local-mysql
+    container_name: gho-local-mysql
+    environment:
+      - MYSQL_DB=gho
+      - MYSQL_USER=gho
+      - MYSQL_PASS=gho
+    volumes:
+      - "gho-local-site-database:/var/lib/mysql:rw"
+    networks:
+      - default
+
+  drupal:
+    image: public.ecr.aws/unocha/gho-2022-site:local
+    hostname: gho-local-site
+    container_name: gho-local-site
+    depends_on:
+      - memcache
+      - mysql
+    volumes:
+      - "./shared/settings:/srv/www/shared/settings:ro"
+      # Mount volumes for the private and public files.
+      - "gho-local-site-public:/srv/www/html/sites/default/files:rw"
+      - "gho-local-site-private:/srv/www/html/sites/default/private:rw"
+      # Mount the folders needed for the tests.
+      - "../phpcs.xml:/srv/www/phpcs.xml:ro"
+      - "../phpunit.xml:/srv/www/phpunit.xml:ro"
+      # Mount local custom code.
+      - "../html/modules/custom:/srv/www/html/modules/custom:rw"
+      - "../html/themes/custom:/srv/www/html/themes/custom:rw"
+      # Mount configuration and allow overriding it.
+      - "../config:/srv/www/config:rw"
+      - "../config_dev:/srv/www/config_dev:rw"
+      # # Mount contrib modules and themes.
+      # - "../html/modules/contrib:/srv/www/html/modules/contrib:rw"
+      # - "../html/themes/contrib:/srv/www/html/themes/contrib:rw"
+      # Mount nginx custom configuration.
+      # - "../docker/etc/nginx/custom:/etc/nginx/custom"
+    environment:
+      - TERM=xterm
+      - ENVIRONMENT=dev
+      - NGINX_SERVERNAME=gho-local.test
+      - NGINX_OVERRIDE_PROTOCOL=HTTP,gho-local.test
+      - DRUSH_OPTIONS_URI=https://gho-local.test
+      - DRUPAL_DB_DATABASE=gho
+      - DRUPAL_DB_USERNAME=gho
+      - DRUPAL_DB_PASSWORD=gho
+      - DRUPAL_DB_HOST=mysql
+      - DRUPAL_DB_DRIVER=mysql
+      - PHP_ENVIRONMENT=local
+      # Rate limiting.
+      - NGINX_LIMIT_HUMANS=1024r/s
+      - NGINX_BURST_HUMANS=1024
+      # Local proxy.
+      - VIRTUAL_HOST=gho-local.test
+      - VIRTUAL_PORT=80
+      - VIRTUAL_NETWORK=${PROXY:-proxy}
+      - HTTPS_METHOD=noredirect
+    labels:
+      caddy: gho-local.test
+      caddy.reverse_proxy: "{{upstreams}}"
+    networks:
+      - default
+      - proxy
